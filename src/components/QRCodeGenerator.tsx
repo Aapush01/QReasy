@@ -49,12 +49,16 @@ const QRCodeGenerator: React.FC = () => {
         </div>
       )}
     </div>
+    <div className='flex justify-center items-center'>
     <button
           onClick={handleDownloadClick}
-          className="p-2 bg-blue-500 text-white rounded-md"
+          className=" justify-center items-center p-2  bg-blue-500 text-white rounded-md"
         >
           Download QR
         </button>
+
+    </div>
+    
       </BackgroundLines>
   );
 };
