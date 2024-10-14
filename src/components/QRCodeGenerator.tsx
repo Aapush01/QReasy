@@ -7,8 +7,10 @@ import { toPng } from "html-to-image";
 import { BackgroundLines } from "../components/ui/BackgroundLines";
 
 // Predefined list of colors
+
 const fgColors = ["Black", "Red", "Blue", "Green"]; // Foreground colors
 const bgColors = ["White", "Pink", "Yellow", "Lavender", "Honeydew"]; // Background colors
+
 
 const QRCodeGenerator: React.FC = () => {
   const [inputText, setInputText] = useState<string>("");
@@ -21,12 +23,12 @@ const QRCodeGenerator: React.FC = () => {
     setInputText(e.target.value);
   };
 
-  // Handle foreground color change
+
   const handleFgColorChange = (color: string): void => {
     setFgColor(color);
   };
 
-  // Handle background color change
+
   const handleBgColorChange = (color: string): void => {
     setBgColor(color);
   };
@@ -112,6 +114,7 @@ const QRCodeGenerator: React.FC = () => {
           className="p-2 mb-4 border border-gray-400 rounded-md w-full sm:max-w-xs"
         />
 
+
         <div className="flex gap-4 mb-4">
           <div>
             <label htmlFor="fgColor">Foreground Color:</label>
@@ -122,6 +125,7 @@ const QRCodeGenerator: React.FC = () => {
                   value={color}
                   onClick={() => handleFgColorChange(color)}
                   className={`p-2 rounded-full border border-gray-400 ${color === fgColor ? 'bg-gray-200' : 'bg-gray-300'}`}
+
                   style={{ backgroundColor: color }} // Set button background to color
                 />
               ))}
