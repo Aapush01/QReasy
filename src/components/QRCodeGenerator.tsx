@@ -16,7 +16,6 @@ const QRCodeGenerator: React.FC = () => {
   const [fgColor, setFgColor] = useState<string>("black"); // Foreground color default
   const [bgColor, setBgColor] = useState<string>("white"); // Background color default
   const qrRef = useRef<HTMLDivElement>(null);
-  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
 
   // Handle input text change
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -68,54 +67,31 @@ const QRCodeGenerator: React.FC = () => {
       });
   };
 
-  // Generate the image for sharing
-  const handleShareClick = () => {
+  // Share the QR code image using the Web Share API
+  const handleShareClick = async () => {
     if (!qrRef.current) {
       console.error("QR code reference is null.");
       return;
     }
 
-    toPng(qrRef.current)
-      .then((dataUrl) => {
-        setQrImageUrl(dataUrl); // Store the generated QR image URL for sharing
-      })
-      .catch((err) => {
-        console.error("Error generating image for sharing", err);
-      });
-  };
+    try {
+      const dataUrl = await toPng(qrRef.current);
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "qr-code.png", { type: "image/png" });
 
-  // Function to share on different platforms
-  const shareQrCode = (platform: string) => {
-    if (!qrImageUrl) {
-      console.error("QR code image URL is null.");
-      return;
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: "Share QR Code",
+          text: "Check out this QR code!",
+          files: [file], // Share the image file
+        });
+      } else {
+        console.error("Sharing not supported or image could not be shared.");
+        alert("Sharing is not supported on this device.");
+      }
+    } catch (error) {
+      console.error("Error sharing image", error);
     }
-
-    const encodedQrUrl = encodeURIComponent(qrImageUrl);
-    let shareUrl = "";
-
-    switch (platform) {
-      case "whatsapp":
-        shareUrl = `https://wa.me/?text=${encodedQrUrl}`;
-        break;
-      case "telegram":
-        shareUrl = `https://t.me/share/url?url=${encodedQrUrl}&text=Check out this QR code!`;
-        break;
-      case "instagram":
-        alert("Instagram sharing is not supported via direct link. You can share the link manually.");
-        return;
-      case "facebook":
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedQrUrl}`;
-        break;
-      case "x":
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodedQrUrl}&text=Check out this QR code!`;
-        break;
-      default:
-        alert("Platform not supported!");
-        return;
-    }
-
-    window.open(shareUrl, "_blank");
   };
 
   return (
@@ -196,35 +172,6 @@ const QRCodeGenerator: React.FC = () => {
             Share QR
           </button>
         </div>
-
-        {qrImageUrl && (
-          <div className="flex justify-center items-center mt-4 space-x-2">
-            <button
-              onClick={() => shareQrCode("whatsapp")}
-              className="p-2 bg-green-500 text-white rounded-md"
-            >
-              WhatsApp
-            </button>
-            <button
-              onClick={() => shareQrCode("telegram")}
-              className="p-2 bg-blue-500 text-white rounded-md"
-            >
-              Telegram
-            </button>
-            <button
-              onClick={() => shareQrCode("facebook")}
-              className="p-2 bg-blue-800 text-white rounded-md"
-            >
-              Facebook
-            </button>
-            <button
-              onClick={() => shareQrCode("x")}
-              className="p-2 bg-black text-white rounded-md"
-            >
-              X (Twitter)
-            </button>
-          </div>
-        )}
       </div>
 
       <ToastContainer />
