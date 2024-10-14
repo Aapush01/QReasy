@@ -16,6 +16,7 @@ const QRCodeGenerator: React.FC = () => {
   const [fgColor, setFgColor] = useState<string>("black"); // Foreground color default
   const [bgColor, setBgColor] = useState<string>("white"); // Background color default
   const qrRef = useRef<HTMLDivElement>(null);
+  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
 
   // Handle input text change
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -67,6 +68,56 @@ const QRCodeGenerator: React.FC = () => {
       });
   };
 
+  // Generate the image for sharing
+  const handleShareClick = () => {
+    if (!qrRef.current) {
+      console.error("QR code reference is null.");
+      return;
+    }
+
+    toPng(qrRef.current)
+      .then((dataUrl) => {
+        setQrImageUrl(dataUrl); // Store the generated QR image URL for sharing
+      })
+      .catch((err) => {
+        console.error("Error generating image for sharing", err);
+      });
+  };
+
+  // Function to share on different platforms
+  const shareQrCode = (platform: string) => {
+    if (!qrImageUrl) {
+      console.error("QR code image URL is null.");
+      return;
+    }
+
+    const encodedQrUrl = encodeURIComponent(qrImageUrl);
+    let shareUrl = "";
+
+    switch (platform) {
+      case "whatsapp":
+        shareUrl = `https://wa.me/?text=${encodedQrUrl}`;
+        break;
+      case "telegram":
+        shareUrl = `https://t.me/share/url?url=${encodedQrUrl}&text=Check out this QR code!`;
+        break;
+      case "instagram":
+        alert("Instagram sharing is not supported via direct link. You can share the link manually.");
+        return;
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedQrUrl}`;
+        break;
+      case "x":
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodedQrUrl}&text=Check out this QR code!`;
+        break;
+      default:
+        alert("Platform not supported!");
+        return;
+    }
+
+    window.open(shareUrl, "_blank");
+  };
+
   return (
     <BackgroundLines>
       <div className="flex flex-col items-center justify-center h-screen p-4 bg-gray-100">
@@ -75,7 +126,7 @@ const QRCodeGenerator: React.FC = () => {
             <span className="animate-rgb-1">QR</span>
             <span className="animate-rgb-2">Code</span>
             <span className="animate-rgb-3">Generator</span>
-          </div> 
+          </div>
         </h1>
 
         <input
@@ -86,7 +137,6 @@ const QRCodeGenerator: React.FC = () => {
           className="p-2 mb-4 border border-gray-400 rounded-md w-full sm:max-w-xs"
         />
 
-        {/* Dropdowns for Foreground and Background Colors */}
         <div className="flex gap-4 mb-4">
           <div>
             <label htmlFor="fgColor">Foreground Color:</label>
@@ -122,7 +172,6 @@ const QRCodeGenerator: React.FC = () => {
 
         {inputText && (
           <div className="bg-white p-4 rounded-md shadow-md" ref={qrRef}>
-            {/* Apply fgColor and bgColor */}
             <QRCode value={inputText} fgColor={fgColor} bgColor={bgColor} />
           </div>
         )}
@@ -140,7 +189,42 @@ const QRCodeGenerator: React.FC = () => {
           >
             Download QR
           </button>
+          <button
+            onClick={handleShareClick}
+            className="p-2 bg-green-500 text-white rounded-md ml-2"
+          >
+            Share QR
+          </button>
         </div>
+
+        {qrImageUrl && (
+          <div className="flex justify-center items-center mt-4 space-x-2">
+            <button
+              onClick={() => shareQrCode("whatsapp")}
+              className="p-2 bg-green-500 text-white rounded-md"
+            >
+              WhatsApp
+            </button>
+            <button
+              onClick={() => shareQrCode("telegram")}
+              className="p-2 bg-blue-500 text-white rounded-md"
+            >
+              Telegram
+            </button>
+            <button
+              onClick={() => shareQrCode("facebook")}
+              className="p-2 bg-blue-800 text-white rounded-md"
+            >
+              Facebook
+            </button>
+            <button
+              onClick={() => shareQrCode("x")}
+              className="p-2 bg-black text-white rounded-md"
+            >
+              X (Twitter)
+            </button>
+          </div>
+        )}
       </div>
 
       <ToastContainer />
