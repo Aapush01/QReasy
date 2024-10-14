@@ -1,20 +1,20 @@
-import React, { useState, ChangeEvent, useRef } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import QRCode from 'react-qr-code';
-import { saveAs } from 'file-saver';
-import { toPng } from 'html-to-image';
+import React, { useState, ChangeEvent, useRef } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import QRCode from "react-qr-code";
+import { saveAs } from "file-saver";
+import { toPng } from "html-to-image";
 import { BackgroundLines } from "../components/ui/BackgroundLines";
 
 // Predefined list of colors
-const fgColors = ['Black', 'Red', 'Blue', 'Green',]; // Foreground colors
+const fgColors = ["Black", "Red", "Blue", "Green"]; // Foreground colors
 
-const bgColors = ['White', 'Pink', 'Yellow','Lavender','Honeydew']; // Background colors
+const bgColors = ["White", "Pink", "Yellow", "Lavender", "Honeydew"]; // Background colors
 
 const QRCodeGenerator: React.FC = () => {
-  const [inputText, setInputText] = useState<string>('');
-  const [fgColor, setFgColor] = useState<string>('black'); // Foreground color default
-  const [bgColor, setBgColor] = useState<string>('white'); // Background color default
+  const [inputText, setInputText] = useState<string>("");
+  const [fgColor, setFgColor] = useState<string>("black"); // Foreground color default
+  const [bgColor, setBgColor] = useState<string>("white"); // Background color default
   const qrRef = useRef<HTMLDivElement>(null);
 
   // Handle input text change
@@ -59,18 +59,24 @@ const QRCodeGenerator: React.FC = () => {
 
     toPng(qrRef.current)
       .then((dataUrl) => {
-        saveAs(dataUrl, 'qr-code.png');
+        saveAs(dataUrl, "qr-code.png");
         notify();
       })
       .catch((err) => {
-        console.error('Error generating image', err);
+        console.error("Error generating image", err);
       });
   };
 
   return (
     <BackgroundLines>
       <div className="flex flex-col items-center justify-center h-screen p-4 bg-gray-100">
-        <h1 className="text-2xl font-bold mb-4">QR Code Generator</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          <div className="flex space-x-2">
+            <span className="animate-rgb-1">QR</span>
+            <span className="animate-rgb-2">Code</span>
+            <span className="animate-rgb-3">Generator</span>
+          </div> 
+        </h1>
 
         <input
           type="text"
@@ -84,7 +90,12 @@ const QRCodeGenerator: React.FC = () => {
         <div className="flex gap-4 mb-4">
           <div>
             <label htmlFor="fgColor">Foreground Color:</label>
-            <select id="fgColor" value={fgColor} onChange={handleFgColorChange} className="ml-2">
+            <select
+              id="fgColor"
+              value={fgColor}
+              onChange={handleFgColorChange}
+              className="ml-2"
+            >
               {fgColors.map((color) => (
                 <option key={color} value={color}>
                   {color}
@@ -94,7 +105,12 @@ const QRCodeGenerator: React.FC = () => {
           </div>
           <div>
             <label htmlFor="bgColor">Background Color:</label>
-            <select id="bgColor" value={bgColor} onChange={handleBgColorChange} className="ml-2">
+            <select
+              id="bgColor"
+              value={bgColor}
+              onChange={handleBgColorChange}
+              className="ml-2"
+            >
               {bgColors.map((color) => (
                 <option key={color} value={color}>
                   {color}
